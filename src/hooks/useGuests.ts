@@ -1,45 +1,81 @@
 import { useState, useEffect } from 'react';
 import { Guest, InvitationStats } from '../types';
-import { loadGuests, saveGuests, addGuest as addGuestToStorage, updateGuest, deleteGuest, confirmGuest } from '../utils/storage';
+import { guestAPI } from '../services/guestAPI';
 
 export const useGuests = () => {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Carregar convidados na inicialização
   useEffect(() => {
-    const loadedGuests = loadGuests();
-    setGuests(loadedGuests);
-    setLoading(false);
+    const loadGuests = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const loadedGuests = await guestAPI.getAll();
+        setGuests(loadedGuests);
+      } catch (err) {
+        console.error('Erro ao carregar convidados:', err);
+        setError('Erro ao carregar convidados. Verifique se o servidor está rodando.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadGuests();
   }, []);
 
-  const addGuest = (guestData: Omit<Guest, 'id' | 'invitedAt'>) => {
-    const newGuest = addGuestToStorage(guestData);
-    setGuests(prev => [...prev, newGuest]);
-    return newGuest;
+  const addGuest = async (guestData: Omit<Guest, 'id' | 'invitedAt'>) => {
+    try {
+      setError(null);
+      const newGuest = await guestAPI.create(guestData);
+      setGuests(prev => [...prev, newGuest]);
+      return newGuest;
+    } catch (err) {
+      console.error('Erro ao adicionar convidado:', err);
+      setError('Erro ao adicionar convidado');
+      throw err;
+    }
   };
 
-  const editGuest = (id: string, updates: Partial<Guest>) => {
-    const updatedGuest = updateGuest(id, updates);
-    if (updatedGuest) {
+  const editGuest = async (id: string, updates: Partial<Guest>) => {
+    try {
+      setError(null);
+      const updatedGuest = await guestAPI.update(id, updates);
       setGuests(prev => prev.map(g => g.id === id ? updatedGuest : g));
+      return updatedGuest;
+    } catch (err) {
+      console.error('Erro ao editar convidado:', err);
+      setError('Erro ao editar convidado');
+      throw err;
     }
-    return updatedGuest;
   };
 
-  const removeGuest = (id: string) => {
-    const success = deleteGuest(id);
-    if (success) {
+  const removeGuest = async (id: string) => {
+    try {
+      setError(null);
+      await guestAPI.delete(id);
       setGuests(prev => prev.filter(g => g.id !== id));
+      return true;
+    } catch (err) {
+      console.error('Erro ao remover convidado:', err);
+      setError('Erro ao remover convidado');
+      throw err;
     }
-    return success;
   };
 
-  const confirmGuestPresence = (id: string) => {
-    const confirmedGuest = confirmGuest(id);
-    if (confirmedGuest) {
+  const confirmGuestPresence = async (id: string) => {
+    try {
+      setError(null);
+      const confirmedGuest = await guestAPI.confirm(id);
       setGuests(prev => prev.map(g => g.id === id ? confirmedGuest : g));
+      return confirmedGuest;
+    } catch (err) {
+      console.error('Erro ao confirmar convidado:', err);
+      setError('Erro ao confirmar convidado');
+      throw err;
     }
-    return confirmedGuest;
   };
 
   const getStats = (): InvitationStats => {
@@ -65,6 +101,7 @@ export const useGuests = () => {
   return {
     guests,
     loading,
+    error,
     addGuest,
     editGuest,
     removeGuest,

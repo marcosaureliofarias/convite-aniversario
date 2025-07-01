@@ -1,0 +1,21 @@
+[
+  {
+    "id": "example-guest-1",
+    "name": "João Silva",
+    "phone": "(11) 99999-9999",
+    "email": "joao@email.com",
+    "confirmed": true,
+    "confirmedAt": "2025-07-01T15:30:00.000Z",
+    "invitedAt": "2025-07-01T10:00:00.000Z",
+    "notes": "Vegetariano"
+  },
+  {
+    "id": "example-guest-2",
+    "name": "Maria Santos",
+    "phone": "(11) 88888-8888",
+    "email": "maria@email.com",
+    "confirmed": false,
+    "invitedAt": "2025-07-01T10:15:00.000Z",
+    "notes": "Vai trazer sobremesa"
+  }
+]

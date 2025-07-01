@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Header } from './components/Header';
 import { GuestCard } from './components/GuestCard';
 import { GuestForm } from './components/GuestForm';
@@ -12,7 +12,7 @@ import { Guest } from './types';
 const HOST_PHONE = '5511999999999'; // Format: 55 + area code + number
 
 function App() {
-  const { guests, loading, addGuest, editGuest, removeGuest, confirmGuestPresence, getStats } = useGuests();
+  const { guests, loading, error, addGuest, editGuest, removeGuest, confirmGuestPresence, getStats } = useGuests();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingGuest, setEditingGuest] = useState<Guest | undefined>();
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,13 +47,18 @@ function App() {
     });
   }, [guests, searchQuery, showConfirmedOnly]);
 
-  const handleSaveGuest = (guestData: Omit<Guest, 'id' | 'invitedAt'>) => {
-    if (editingGuest) {
-      editGuest(editingGuest.id, guestData);
-    } else {
-      addGuest(guestData);
+  const handleSaveGuest = async (guestData: Omit<Guest, 'id' | 'invitedAt'>) => {
+    try {
+      if (editingGuest) {
+        await editGuest(editingGuest.id, guestData);
+      } else {
+        await addGuest(guestData);
+      }
+      handleCloseForm();
+    } catch (error) {
+      console.error('Erro ao salvar convidado:', error);
+      // O erro já está sendo tratado no hook useGuests
     }
-    handleCloseForm();
   };
 
   const handleEditGuest = (guest: Guest) => {
@@ -61,9 +66,14 @@ function App() {
     setIsFormOpen(true);
   };
 
-  const handleDeleteGuest = (id: string) => {
+  const handleDeleteGuest = async (id: string) => {
     if (window.confirm('Tem certeza que deseja remover este convidado?')) {
-      removeGuest(id);
+      try {
+        await removeGuest(id);
+      } catch (error) {
+        console.error('Erro ao remover convidado:', error);
+        // O erro já está sendo tratado no hook useGuests
+      }
     }
   };
 
@@ -83,6 +93,28 @@ function App() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Carregando convites...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Erro de Conexão</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg transition-colors"
+          >
+            Tentar Novamente
+          </button>
         </div>
       </div>
     );

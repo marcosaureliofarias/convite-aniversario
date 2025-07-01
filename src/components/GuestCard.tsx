@@ -1,6 +1,6 @@
 import React from 'react';
 import { Guest } from '../types';
-import { Phone, Mail, Check, X, MessageCircle, Edit, Trash2 } from 'lucide-react';
+import { Phone, Mail, Check, MessageCircle, Edit, Trash2, Clock } from 'lucide-react';
 import { formatPhoneNumber, generateWhatsAppLink } from '../utils/whatsapp';
 
 interface GuestCardProps {
