@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Shield, Users, UserCheck, Clock, TrendingUp, Download, BarChart3 } from 'lucide-react';
+import React, { useState, useMemo, useRef } from 'react';
+import { Shield, Users, UserCheck, Clock, TrendingUp, Download, Upload, Trash, BarChart3, RefreshCw } from 'lucide-react';
 import { GuestCard } from '../components/GuestCard';
 import { GuestForm } from '../components/GuestForm';
 import { SearchBar } from '../components/SearchBar';
@@ -12,11 +12,26 @@ import { Guest } from '../types';
 const HOST_PHONE = '5521985317129'; // Format: 55 + area code + number
 
 export const AdminView: React.FC = () => {
-  const { guests, loading, error, addGuest, editGuest, removeGuest, confirmGuestPresence, getStats } = useGuests();
+  const { 
+    guests, 
+    loading, 
+    error, 
+    addGuest, 
+    editGuest, 
+    removeGuest, 
+    confirmGuestPresence, 
+    getStats,
+    exportGuestData,
+    importGuestData,
+    clearAllData,
+    forceReload
+  } = useGuests();
+  
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingGuest, setEditingGuest] = useState<Guest | undefined>();
   const [searchQuery, setSearchQuery] = useState('');
   const [showConfirmedOnly, setShowConfirmedOnly] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const stats = getStats();
 
@@ -85,35 +100,43 @@ export const AdminView: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const exportGuestList = () => {
-    const dataToExport = {
-      event: {
-        name: "Aniversário do Marcos Farias",
-        date: "15 de Julho de 2025",
-        location: "Salão de Festas Premium"
-      },
-      stats,
-      guests: guests.map(guest => ({
-        name: guest.name,
-        phone: guest.phone,
-        email: guest.email,
-        confirmed: guest.confirmed,
-        confirmedAt: guest.confirmedAt,
-        invitedAt: guest.invitedAt,
-        notes: guest.notes
-      })),
-      exportedAt: new Date().toISOString()
-    };
-    
-    const dataStr = JSON.stringify(dataToExport, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = `convidados-aniversario-marcos-${new Date().toISOString().split('T')[0]}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
+  const handleImportData = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const importedCount = await importGuestData(file);
+      alert(`✅ ${importedCount} convidados importados com sucesso!`);
+    } catch (error) {
+      alert('❌ Erro ao importar dados. Verifique o formato do arquivo.');
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleClearAllData = async () => {
+    if (window.confirm('⚠️ ATENÇÃO: Isso irá remover TODOS os convidados!\n\nEsta ação não pode ser desfeita. Tem certeza?')) {
+      if (window.confirm('🚨 Última confirmação: Realmente deseja apagar TODOS os dados?')) {
+        try {
+          await clearAllData();
+          alert('✅ Todos os dados foram removidos.');
+        } catch (error) {
+          alert('❌ Erro ao limpar dados.');
+        }
+      }
+    }
+  };
+
+  const handleForceReload = async () => {
+    try {
+      await forceReload();
+      alert('✅ Dados recarregados do arquivo JSON!');
+    } catch (error) {
+      alert('❌ Erro ao recarregar dados.');
+    }
   };
 
   if (loading) {
@@ -163,8 +186,19 @@ export const AdminView: React.FC = () => {
             </div>
             
             <div className="flex gap-3">
+              {/* Botão Sincronizar */}
               <button
-                onClick={exportGuestList}
+                onClick={handleForceReload}
+                className="flex items-center gap-2 bg-blue-500/20 hover:bg-blue-500/30 px-4 py-2 rounded-lg transition-colors backdrop-blur-sm border border-blue-300/30"
+                title="Recarregar dados do arquivo JSON"
+              >
+                <RefreshCw className="w-5 h-5" />
+                <span className="hidden sm:inline">Sincronizar</span>
+              </button>
+              
+              {/* Botão Exportar */}
+              <button
+                onClick={exportGuestData}
                 className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors backdrop-blur-sm border border-white/20"
                 title="Exportar lista de convidados"
               >
@@ -172,6 +206,31 @@ export const AdminView: React.FC = () => {
                 <span className="hidden sm:inline">Exportar</span>
               </button>
               
+              {/* Botão Importar */}
+              <label className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors backdrop-blur-sm border border-white/20 cursor-pointer"
+                     title="Importar lista de convidados">
+                <Upload className="w-5 h-5" />
+                <span className="hidden sm:inline">Importar</span>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".json"
+                  onChange={handleImportData}
+                  className="hidden"
+                />
+              </label>
+              
+              {/* Botão Limpar Dados */}
+              <button
+                onClick={handleClearAllData}
+                className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 px-4 py-2 rounded-lg transition-colors backdrop-blur-sm border border-red-300/30"
+                title="Limpar todos os dados"
+              >
+                <Trash className="w-5 h-5" />
+                <span className="hidden sm:inline">Limpar</span>
+              </button>
+              
+              {/* Botão Novo Convidado */}
               <button
                 onClick={handleOpenForm}
                 className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors backdrop-blur-sm border border-white/20"
@@ -235,6 +294,40 @@ export const AdminView: React.FC = () => {
       </header>
 
       <div className="max-w-7xl mx-auto p-6">
+        {/* Sistema de Arquivo JSON Info */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-blue-100 rounded-lg">
+              <RefreshCw className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                🎉 Sistema Atualizado: Arquivo JSON Local
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-blue-800 mb-2">
+                    <strong>✅ Seus dados estão seguros!</strong> Agora são armazenados em arquivo JSON local com múltiplos backups.
+                  </p>
+                  <ul className="text-blue-700 space-y-1">
+                    <li>• Persistência real dos dados</li>
+                    <li>• Backup automático no navegador</li>
+                    <li>• Exportação/importação fácil</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-blue-800 mb-2">
+                    <strong>🔄 Use o botão "Sincronizar"</strong> para recarregar dados do arquivo quando necessário.
+                  </p>
+                  <p className="text-blue-700">
+                    Os dados são salvos automaticamente a cada operação. Exporte regularmente como backup de segurança!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Admin Tools Section */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">

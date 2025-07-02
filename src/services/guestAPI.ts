@@ -1,57 +1,59 @@
 import { Guest } from '../types';
+import { fileBasedGuestAPI } from './fileBasedGuestAPI';
 
-// URL base da API - automaticamente detecta se está em desenvolvimento ou produção
-const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
-  ? 'http://localhost:3001/api' // Desenvolvimento local
-  : '/api'; // Vercel Serverless Functions (produção)
+// Simula delay de rede para manter a experiência de API
+const delay = (ms: number = 100) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Função auxiliar para tratar respostas da API
-const handleResponse = async (response: Response) => {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Erro desconhecido' }));
-    throw new Error(error.error || 'Erro na requisição');
+// Fallback para localStorage como backup de emergência
+const STORAGE_KEY = 'birthday-guests-backup';
+
+// Função de backup para localStorage
+const backupToLocalStorage = (guests: Guest[]): void => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(guests));
+  } catch (error) {
+    console.warn('Erro ao fazer backup no localStorage:', error);
   }
-  
-  // Para DELETE requests, não há conteúdo para parsear
-  if (response.status === 204) {
-    return null;
-  }
-  
-  return response.json();
 };
 
-// Função para converter strings de data de volta para objetos Date
-const parseGuestDates = (guest: any): Guest => ({
-  ...guest,
-  invitedAt: new Date(guest.invitedAt),
-  confirmedAt: guest.confirmedAt ? new Date(guest.confirmedAt) : undefined
-});
+// Função para carregar backup do localStorage
+const loadFromLocalStorageBackup = (): Guest[] => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return [];
+    
+    const guests = JSON.parse(stored);
+    return guests.map((guest: any) => ({
+      ...guest,
+      invitedAt: new Date(guest.invitedAt),
+      confirmedAt: guest.confirmedAt ? new Date(guest.confirmedAt) : undefined
+    }));
+  } catch (error) {
+    console.error('Erro ao carregar backup do localStorage:', error);
+    return [];
+  }
+};
 
 export const guestAPI = {
   // Buscar todos os convidados
   async getAll(): Promise<Guest[]> {
+    await delay();
     try {
-      const response = await fetch(`${API_BASE_URL}/guests`);
-      const guests = await handleResponse(response);
-      return guests.map(parseGuestDates);
+      const guests = await fileBasedGuestAPI.getAll();
+      backupToLocalStorage(guests);
+      return guests;
     } catch (error) {
-      console.error('Erro ao buscar convidados:', error);
-      throw error;
+      console.error('Erro ao buscar convidados do arquivo, usando backup:', error);
+      return loadFromLocalStorageBackup();
     }
   },
 
   // Adicionar novo convidado
   async create(guestData: Omit<Guest, 'id' | 'invitedAt'>): Promise<Guest> {
+    await delay();
     try {
-      const response = await fetch(`${API_BASE_URL}/guests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(guestData),
-      });
-      const guest = await handleResponse(response);
-      return parseGuestDates(guest);
+      const newGuest = await fileBasedGuestAPI.create(guestData);
+      return newGuest;
     } catch (error) {
       console.error('Erro ao criar convidado:', error);
       throw error;
@@ -60,16 +62,10 @@ export const guestAPI = {
 
   // Atualizar convidado
   async update(id: string, updates: Partial<Guest>): Promise<Guest> {
+    await delay();
     try {
-      const response = await fetch(`${API_BASE_URL}/guests/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updates),
-      });
-      const guest = await handleResponse(response);
-      return parseGuestDates(guest);
+      const updatedGuest = await fileBasedGuestAPI.update(id, updates);
+      return updatedGuest;
     } catch (error) {
       console.error('Erro ao atualizar convidado:', error);
       throw error;
@@ -78,11 +74,9 @@ export const guestAPI = {
 
   // Remover convidado
   async delete(id: string): Promise<void> {
+    await delay();
     try {
-      const response = await fetch(`${API_BASE_URL}/guests/${id}`, {
-        method: 'DELETE',
-      });
-      await handleResponse(response);
+      await fileBasedGuestAPI.delete(id);
     } catch (error) {
       console.error('Erro ao remover convidado:', error);
       throw error;
@@ -91,14 +85,35 @@ export const guestAPI = {
 
   // Confirmar presença
   async confirm(id: string): Promise<Guest> {
+    await delay();
     try {
-      const response = await fetch(`${API_BASE_URL}/guests/${id}/confirm`, {
-        method: 'PUT',
-      });
-      const guest = await handleResponse(response);
-      return parseGuestDates(guest);
+      const confirmedGuest = await fileBasedGuestAPI.confirm(id);
+      return confirmedGuest;
     } catch (error) {
       console.error('Erro ao confirmar convidado:', error);
+      throw error;
+    }
+  },
+
+  // Limpar todos os dados
+  async clearAll(): Promise<void> {
+    await delay();
+    try {
+      await fileBasedGuestAPI.clearAll();
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Erro ao limpar dados:', error);
+      throw error;
+    }
+  },
+
+  // Importar dados
+  async importData(data: Guest[]): Promise<number> {
+    await delay();
+    try {
+      return await fileBasedGuestAPI.importFromFile(data);
+    } catch (error) {
+      console.error('Erro ao importar dados:', error);
       throw error;
     }
   }
