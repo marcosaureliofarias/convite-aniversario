@@ -89,8 +89,8 @@ export const UserView: React.FC = () => {
                   <MapPin className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Onde</h3>
-                <p className="text-purple-100 text-lg font-medium">Casa do Marcao</p>
-                <p className="text-purple-200">Rua Espírito Santo, 123</p>
+                <p className="text-purple-100 text-lg font-medium">Saquarema</p>
+                <p className="text-purple-200">Rua Espírito Santo, LT 05 QD 24 Vila do Abraão</p>
               </div>
             </div>
           </div>
