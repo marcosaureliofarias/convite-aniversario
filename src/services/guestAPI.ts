@@ -1,6 +1,9 @@
 import { Guest } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+// URL base da API - automaticamente detecta se está em desenvolvimento ou produção
+const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+  ? 'http://localhost:3001/api' // Desenvolvimento local
+  : '/api'; // Vercel Serverless Functions (produção)
 
 // Função auxiliar para tratar respostas da API
 const handleResponse = async (response: Response) => {
