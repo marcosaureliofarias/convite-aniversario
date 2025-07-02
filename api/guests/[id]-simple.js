@@ -1,9 +1,30 @@
 // Vercel Serverless Function para operações específicas de um convidado
 // Rota: /api/guests/[id].js
 
-const { guestData } = require('../_shared/guestData.js');
+// Dados em memória (compartilhados entre requisições da mesma instância)
+let guests = [
+  {
+    "name": "Gabriel Neves",
+    "phone": "(21) 98940-6508",
+    "email": "gabrielneves59.gn@gmail.com",
+    "notes": "Gabriel e família",
+    "confirmed": true,
+    "confirmedAt": "2025-07-01T23:12:05.406Z",
+    "id": "21f7dea2-e8c3-4cd6-8986-6358bd0a0667",
+    "invitedAt": "2025-07-01T23:12:05.416Z"
+  },
+  {
+    "name": "Fernandinha",
+    "phone": "(21) 99344-2233",
+    "email": "fernanda@gmail.com",
+    "notes": "Fernanda e Familia",
+    "confirmed": true,
+    "confirmedAt": "2025-07-01T23:15:14.862Z",
+    "id": "f0d3d8d9-db97-4ddf-a215-9246a1926ed2",
+    "invitedAt": "2025-07-01T23:15:14.869Z"
+  }
+];
 
-// Handler para operações específicas de um convidado
 module.exports = function handler(req, res) {
   // Configurar CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,7 +48,7 @@ module.exports = function handler(req, res) {
     switch (method) {
       case 'GET':
         // GET /api/guests/[id] - Buscar convidado específico
-        const guest = guestData.getById(id);
+        const guest = guests.find(g => g.id === id);
         if (!guest) {
           return res.status(404).json({ error: 'Convidado não encontrado' });
         }
@@ -36,20 +57,22 @@ module.exports = function handler(req, res) {
 
       case 'PUT':
         // PUT /api/guests/[id] - Atualizar convidado
-        const updatedGuest = guestData.update(id, req.body);
+        const guestIndex = guests.findIndex(g => g.id === id);
         
-        if (!updatedGuest) {
+        if (guestIndex === -1) {
           return res.status(404).json({ error: 'Convidado não encontrado' });
         }
         
-        res.status(200).json(updatedGuest);
+        guests[guestIndex] = { ...guests[guestIndex], ...req.body };
+        res.status(200).json(guests[guestIndex]);
         break;
 
       case 'DELETE':
         // DELETE /api/guests/[id] - Remover convidado
-        const removed = guestData.remove(id);
+        const initialLength = guests.length;
+        guests = guests.filter(g => g.id !== id);
         
-        if (!removed) {
+        if (guests.length === initialLength) {
           return res.status(404).json({ error: 'Convidado não encontrado' });
         }
         
@@ -64,4 +87,4 @@ module.exports = function handler(req, res) {
     console.error('Erro na API:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
-}
+};

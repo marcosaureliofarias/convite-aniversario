@@ -30,8 +30,8 @@ function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// Exportar funções para manipular dados
-export const guestData = {
+// Exportar funções para manipular dados (CommonJS)
+const guestData = {
   // Obter todos os convidados
   getAll: () => guests,
   
@@ -78,3 +78,5 @@ export const guestData = {
     return guests[index];
   }
 };
+
+module.exports = { guestData };
