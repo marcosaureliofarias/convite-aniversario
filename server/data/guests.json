@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "name": "MARCOS AURELIO CARDOSO DE FARIAS",
+    "phone": "(21) 98531-7129",
+    "confirmed": true,
+    "confirmedAt": "2025-07-02T01:39:41.983Z",
+    "id": "5c03e664-3cba-46bb-9363-29981db930e3",
+    "invitedAt": "2025-07-02T01:39:41.993Z"
+  },
+  {
+    "name": "MARCOS AURELIO CARDOSO DE FARIAS",
+    "phone": "(21) 98531-7129",
+    "confirmed": true,
+    "confirmedAt": "2025-07-02T01:46:37.690Z",
+    "id": "8d5c4195-8f69-4d68-8d4f-96db0ce811c5",
+    "invitedAt": "2025-07-02T01:46:37.704Z"
+  }
+]

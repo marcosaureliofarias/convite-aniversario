@@ -62,11 +62,19 @@ project/
 - Confirmar presença
 - WhatsApp integration
 - Alternância entre modos
+- Favicon personalizado (MF - Marcos Farias)
 
 ### ⚠️ **Limitações:**
 - Dados não persistem entre deploys
 - Não há backup automático
 - Múltiplas instâncias podem ter dados diferentes
+
+## 🐛 **Problemas Resolvidos**
+
+### ✅ **Favicon 404 Error**
+- **Problema**: Referência a `/vite.svg` inexistente
+- **Solução**: Criado `public/favicon.svg` personalizado com iniciais "MF"
+- **Status**: ✅ Resolvido
 
 ## 💾 **Soluções para Persistência**
 

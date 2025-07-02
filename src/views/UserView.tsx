@@ -77,7 +77,7 @@ export const UserView: React.FC = () => {
               <Heart className="w-12 h-12" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-4">
-              🎂 Aniversário do Marcos & Matheus
+              🎂 Aniversário do Marcos & Matheuss
             </h1>
             <p className="text-2xl text-purple-100 mb-2">
               Venha celebrar conosco este momento especial!
