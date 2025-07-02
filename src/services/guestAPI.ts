@@ -1,50 +1,18 @@
 import { Guest } from '../types';
-import { fileBasedGuestAPI } from './fileBasedGuestAPI';
+import { persistentGuestAPI } from './persistentGuestAPI';
 
 // Simula delay de rede para manter a experiência de API
 const delay = (ms: number = 100) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Fallback para localStorage como backup de emergência
-const STORAGE_KEY = 'birthday-guests-backup';
-
-// Função de backup para localStorage
-const backupToLocalStorage = (guests: Guest[]): void => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(guests));
-  } catch (error) {
-    console.warn('Erro ao fazer backup no localStorage:', error);
-  }
-};
-
-// Função para carregar backup do localStorage
-const loadFromLocalStorageBackup = (): Guest[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
-    
-    const guests = JSON.parse(stored);
-    return guests.map((guest: any) => ({
-      ...guest,
-      invitedAt: new Date(guest.invitedAt),
-      confirmedAt: guest.confirmedAt ? new Date(guest.confirmedAt) : undefined
-    }));
-  } catch (error) {
-    console.error('Erro ao carregar backup do localStorage:', error);
-    return [];
-  }
-};
 
 export const guestAPI = {
   // Buscar todos os convidados
   async getAll(): Promise<Guest[]> {
     await delay();
     try {
-      const guests = await fileBasedGuestAPI.getAll();
-      backupToLocalStorage(guests);
-      return guests;
+      return await persistentGuestAPI.getAll();
     } catch (error) {
-      console.error('Erro ao buscar convidados do arquivo, usando backup:', error);
-      return loadFromLocalStorageBackup();
+      console.error('Erro ao buscar convidados:', error);
+      throw error;
     }
   },
 
@@ -52,7 +20,8 @@ export const guestAPI = {
   async create(guestData: Omit<Guest, 'id' | 'invitedAt'>): Promise<Guest> {
     await delay();
     try {
-      const newGuest = await fileBasedGuestAPI.create(guestData);
+      const newGuest = await persistentGuestAPI.create(guestData);
+      console.log('✅ Convidado adicionado e salvo:', newGuest.name);
       return newGuest;
     } catch (error) {
       console.error('Erro ao criar convidado:', error);
@@ -64,7 +33,8 @@ export const guestAPI = {
   async update(id: string, updates: Partial<Guest>): Promise<Guest> {
     await delay();
     try {
-      const updatedGuest = await fileBasedGuestAPI.update(id, updates);
+      const updatedGuest = await persistentGuestAPI.update(id, updates);
+      console.log('✅ Convidado atualizado e salvo:', updatedGuest.name);
       return updatedGuest;
     } catch (error) {
       console.error('Erro ao atualizar convidado:', error);
@@ -76,7 +46,8 @@ export const guestAPI = {
   async delete(id: string): Promise<void> {
     await delay();
     try {
-      await fileBasedGuestAPI.delete(id);
+      await persistentGuestAPI.delete(id);
+      console.log('✅ Convidado removido e salvo');
     } catch (error) {
       console.error('Erro ao remover convidado:', error);
       throw error;
@@ -87,7 +58,8 @@ export const guestAPI = {
   async confirm(id: string): Promise<Guest> {
     await delay();
     try {
-      const confirmedGuest = await fileBasedGuestAPI.confirm(id);
+      const confirmedGuest = await persistentGuestAPI.confirm(id);
+      console.log('✅ Presença confirmada e salva:', confirmedGuest.name);
       return confirmedGuest;
     } catch (error) {
       console.error('Erro ao confirmar convidado:', error);
@@ -99,8 +71,8 @@ export const guestAPI = {
   async clearAll(): Promise<void> {
     await delay();
     try {
-      await fileBasedGuestAPI.clearAll();
-      localStorage.removeItem(STORAGE_KEY);
+      await persistentGuestAPI.clearAll();
+      console.log('✅ Todos os dados foram limpos e salvos');
     } catch (error) {
       console.error('Erro ao limpar dados:', error);
       throw error;
@@ -111,9 +83,34 @@ export const guestAPI = {
   async importData(data: Guest[]): Promise<number> {
     await delay();
     try {
-      return await fileBasedGuestAPI.importFromFile(data);
+      const count = await persistentGuestAPI.importData(data);
+      console.log(`✅ ${count} convidados importados e salvos`);
+      return count;
     } catch (error) {
       console.error('Erro ao importar dados:', error);
+      throw error;
+    }
+  },
+
+  // Baixar backup
+  async downloadBackup(): Promise<void> {
+    try {
+      await persistentGuestAPI.downloadBackup();
+      console.log('✅ Backup baixado com sucesso');
+    } catch (error) {
+      console.error('Erro ao baixar backup:', error);
+      throw error;
+    }
+  },
+
+  // Forçar recarregamento
+  async forceReload(): Promise<Guest[]> {
+    try {
+      const guests = await persistentGuestAPI.forceReload();
+      console.log('✅ Dados recarregados:', guests.length, 'convidados');
+      return guests;
+    } catch (error) {
+      console.error('Erro ao recarregar dados:', error);
       throw error;
     }
   }

@@ -5,6 +5,7 @@ import { GuestForm } from '../components/GuestForm';
 import { SearchBar } from '../components/SearchBar';
 import { EmptyState } from '../components/EmptyState';
 import { FloatingActionButton } from '../components/FloatingActionButton';
+import { useNotifications } from '../components/Notification';
 import { useGuests } from '../hooks/useGuests';
 import { Guest } from '../types';
 
@@ -12,6 +13,8 @@ import { Guest } from '../types';
 const HOST_PHONE = '5521985317129'; // Format: 55 + area code + number
 
 export const AdminView: React.FC = () => {
+  const { addNotification, NotificationContainer } = useNotifications();
+  
   const { 
     guests, 
     loading, 
@@ -66,12 +69,15 @@ export const AdminView: React.FC = () => {
     try {
       if (editingGuest) {
         await editGuest(editingGuest.id, guestData);
+        addNotification('Convidado atualizado e salvo!', 'save');
       } else {
         await addGuest(guestData);
+        addNotification('Convidado adicionado e salvo!', 'save');
       }
       handleCloseForm();
     } catch (error) {
       console.error('Erro ao salvar convidado:', error);
+      addNotification('Erro ao salvar convidado', 'error');
     }
   };
 
@@ -84,9 +90,21 @@ export const AdminView: React.FC = () => {
     if (window.confirm('⚠️ Tem certeza que deseja remover este convidado da lista?\n\nEsta ação não pode ser desfeita.')) {
       try {
         await removeGuest(id);
+        addNotification('Convidado removido e salvo!', 'save');
       } catch (error) {
         console.error('Erro ao remover convidado:', error);
+        addNotification('Erro ao remover convidado', 'error');
       }
+    }
+  };
+
+  const handleConfirmGuest = async (id: string) => {
+    try {
+      await confirmGuestPresence(id);
+      addNotification('Presença confirmada e salva!', 'save');
+    } catch (error) {
+      console.error('Erro ao confirmar presença:', error);
+      addNotification('Erro ao confirmar presença', 'error');
     }
   };
 
@@ -106,9 +124,9 @@ export const AdminView: React.FC = () => {
 
     try {
       const importedCount = await importGuestData(file);
-      alert(`✅ ${importedCount} convidados importados com sucesso!`);
+      addNotification(`${importedCount} convidados importados e salvos!`, 'success');
     } catch (error) {
-      alert('❌ Erro ao importar dados. Verifique o formato do arquivo.');
+      addNotification('Erro ao importar dados. Verifique o formato do arquivo.', 'error');
     }
 
     // Reset file input
@@ -122,9 +140,9 @@ export const AdminView: React.FC = () => {
       if (window.confirm('🚨 Última confirmação: Realmente deseja apagar TODOS os dados?')) {
         try {
           await clearAllData();
-          alert('✅ Todos os dados foram removidos.');
+          addNotification('Todos os dados foram removidos e salvos.', 'save');
         } catch (error) {
-          alert('❌ Erro ao limpar dados.');
+          addNotification('Erro ao limpar dados.', 'error');
         }
       }
     }
@@ -133,9 +151,18 @@ export const AdminView: React.FC = () => {
   const handleForceReload = async () => {
     try {
       await forceReload();
-      alert('✅ Dados recarregados do arquivo JSON!');
+      addNotification('Dados recarregados do arquivo!', 'success');
     } catch (error) {
-      alert('❌ Erro ao recarregar dados.');
+      addNotification('Erro ao recarregar dados.', 'error');
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      await exportGuestData();
+      addNotification('Dados exportados com sucesso!', 'success');
+    } catch (error) {
+      addNotification('Erro ao exportar dados.', 'error');
     }
   };
 
@@ -198,7 +225,7 @@ export const AdminView: React.FC = () => {
               
               {/* Botão Exportar */}
               <button
-                onClick={exportGuestData}
+                onClick={handleExportData}
                 className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors backdrop-blur-sm border border-white/20"
                 title="Exportar lista de convidados"
               >
@@ -393,7 +420,7 @@ export const AdminView: React.FC = () => {
                   <GuestCard
                     key={guest.id}
                     guest={guest}
-                    onConfirm={confirmGuestPresence}
+                    onConfirm={handleConfirmGuest}
                     onEdit={handleEditGuest}
                     onDelete={handleDeleteGuest}
                     hostPhone={HOST_PHONE}
@@ -414,6 +441,9 @@ export const AdminView: React.FC = () => {
           onCancel={handleCloseForm}
           isOpen={isFormOpen}
         />
+
+        {/* Notifications Container */}
+        <NotificationContainer />
       </div>
     </div>
   );

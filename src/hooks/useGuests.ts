@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Guest, InvitationStats } from '../types';
 import { guestAPI } from '../services/guestAPI';
-import { downloadCurrentData } from '../services/fileBasedGuestAPI';
 
 export const useGuests = () => {
   const [guests, setGuests] = useState<Guest[]>([]);
@@ -102,44 +101,10 @@ export const useGuests = () => {
   // Função para exportar dados dos convidados
   const exportGuestData = async () => {
     try {
-      await downloadCurrentData();
+      await guestAPI.downloadBackup();
     } catch (error) {
       console.error('Erro ao exportar dados:', error);
-      // Fallback para o método anterior
-      const stats = getStats();
-      const dataToExport = {
-        event: {
-          name: "Aniversário do Marcos Farias",
-          date: "15 de Julho de 2025",
-          location: "Salão de Festas Premium"
-        },
-        stats,
-        guests: guests.map(guest => ({
-          name: guest.name,
-          phone: guest.phone,
-          email: guest.email,
-          confirmed: guest.confirmed,
-          confirmedAt: guest.confirmedAt,
-          invitedAt: guest.invitedAt,
-          notes: guest.notes
-        })),
-        exportedAt: new Date().toISOString()
-      };
-
-      const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
-        type: 'application/json'
-      });
-      
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `convidados-aniversario-${new Date().toISOString().split('T')[0]}.json`;
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      URL.revokeObjectURL(url);
+      alert('❌ Erro ao exportar dados. Tente novamente.');
     }
   };
 
@@ -185,11 +150,11 @@ export const useGuests = () => {
     try {
       setLoading(true);
       setError(null);
-      const reloadedGuests = await guestAPI.getAll();
+      const reloadedGuests = await guestAPI.forceReload();
       setGuests(reloadedGuests);
     } catch (err) {
       console.error('Erro ao recarregar dados:', err);
-      setError('Erro ao recarregar dados do arquivo');
+      setError('Erro ao recarregar dados');
       throw err;
     } finally {
       setLoading(false);
