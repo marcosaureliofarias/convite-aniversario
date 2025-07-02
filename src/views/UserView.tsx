@@ -12,7 +12,8 @@ export const UserView: React.FC = () => {
     name: '',
     phone: '',
     email: '',
-    notes: ''
+    notes: '',
+    confirmed: false
   });
 
   const stats = getStats();
@@ -28,11 +29,16 @@ export const UserView: React.FC = () => {
         phone: newGuestData.phone.trim(),
         email: newGuestData.email.trim() || undefined,
         notes: newGuestData.notes.trim() || undefined,
-        confirmed: false // Usuário adiciona mas não confirma automaticamente
+        confirmed: newGuestData.confirmed,
+        confirmedAt: newGuestData.confirmed ? new Date() : undefined
       });
       
-      alert('🎉 Você foi adicionado à lista! Agora confirme sua presença via WhatsApp.');
-      setNewGuestData({ name: '', phone: '', email: '', notes: '' });
+      const message = newGuestData.confirmed 
+        ? '🎉 Você foi adicionado à lista e sua presença foi confirmada!'
+        : '✅ Você foi adicionado à lista! Confirme sua presença via WhatsApp quando quiser.';
+      
+      alert(message);
+      resetForm();
       setShowGuestForm(false);
     } catch (error) {
       console.error('Erro ao adicionar convidado:', error);
@@ -52,6 +58,15 @@ export const UserView: React.FC = () => {
     setNewGuestData(prev => ({ ...prev, phone: formatted }));
   };
 
+  const resetForm = () => {
+    setNewGuestData({ name: '', phone: '', email: '', notes: '', confirmed: false });
+  };
+
+  const handleCloseForm = () => {
+    resetForm();
+    setShowGuestForm(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
       {/* Hero Section */}
@@ -62,7 +77,7 @@ export const UserView: React.FC = () => {
               <Heart className="w-12 h-12" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-4">
-              🎂 Aniversário do Marcos
+              🎂 Aniversário do Marcos & Matheus
             </h1>
             <p className="text-2xl text-purple-100 mb-2">
               Venha celebrar conosco este momento especial!
@@ -124,17 +139,23 @@ export const UserView: React.FC = () => {
           <h2 className="text-3xl font-bold text-gray-800 mb-4">
             🎉 Confirme sua Presença!
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl text-gray-600 mb-4">
             Sua presença é o melhor presente que podemos receber
           </p>
+          <p className="text-lg text-gray-500 mb-8">
+            Escolha como quer confirmar: direto no formulário ou via WhatsApp
+          </p>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center max-w-2xl mx-auto">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center max-w-3xl mx-auto">
             <button
               onClick={() => setShowGuestForm(true)}
               className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-4 px-8 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <User className="w-6 h-6 inline mr-3" />
-              Adicionar Meu Nome
+              Adicionar à Lista
+              <div className="text-sm font-normal opacity-90 mt-1">
+                Com opção de confirmar agora
+              </div>
             </button>
             
             <a
@@ -145,6 +166,9 @@ export const UserView: React.FC = () => {
             >
               <MessageCircle className="w-6 h-6 inline mr-3" />
               Confirmar via WhatsApp
+              <div className="text-sm font-normal opacity-90 mt-1">
+                Conversa direta com organizador
+              </div>
             </a>
           </div>
         </div>
@@ -286,10 +310,45 @@ export const UserView: React.FC = () => {
                 />
               </div>
 
+              {/* Confirmation Options */}
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">Como você quer confirmar sua presença?</h4>
+                
+                <div className="space-y-3">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="confirmationMethod"
+                      checked={!newGuestData.confirmed}
+                      onChange={() => setNewGuestData(prev => ({ ...prev, confirmed: false }))}
+                      className="w-5 h-5 text-purple-600 bg-gray-100 border-gray-300 focus:ring-purple-500 mt-1"
+                    />
+                    <div>
+                      <div className="font-medium text-gray-800">Apenas adicionar à lista</div>
+                      <div className="text-sm text-gray-600">Vou confirmar depois via WhatsApp</div>
+                    </div>
+                  </label>
+                  
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="confirmationMethod"
+                      checked={newGuestData.confirmed}
+                      onChange={() => setNewGuestData(prev => ({ ...prev, confirmed: true }))}
+                      className="w-5 h-5 text-purple-600 bg-gray-100 border-gray-300 focus:ring-purple-500 mt-1"
+                    />
+                    <div>
+                      <div className="font-medium text-gray-800">Confirmar presença agora</div>
+                      <div className="text-sm text-gray-600">Já confirmo minha presença na festa</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               <div className="flex gap-4 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowGuestForm(false)}
+                  onClick={handleCloseForm}
                   className="flex-1 px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-colors font-medium"
                 >
                   Cancelar
@@ -298,7 +357,7 @@ export const UserView: React.FC = () => {
                   type="submit"
                   className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-6 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
-                  Confirmar Participação
+                  {newGuestData.confirmed ? '🎉 Adicionar e Confirmar' : '✅ Adicionar à Lista'}
                 </button>
               </div>
             </form>
