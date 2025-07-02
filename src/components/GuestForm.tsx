@@ -111,7 +111,7 @@ export const GuestForm: React.FC<GuestFormProps> = ({
               value={formData.phone}
               onChange={handlePhoneChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-              placeholder="(11) 99999-9999"
+              placeholder="(21) 98531-7129"
               required
             />
           </div>

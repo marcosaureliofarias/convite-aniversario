@@ -74,7 +74,7 @@ npm run build
 Para usar a funcionalidade de confirmação via WhatsApp, edite o número em `src/App.tsx`:
 
 ```typescript
-const HOST_PHONE = '5511999999999'; // Substitua pelo seu número
+const HOST_PHONE = '5521985317129'; // Substitua pelo seu número
 ```
 
 ### Dados dos Convidados
@@ -100,6 +100,27 @@ Este é um projeto de demonstração para uso local. Para uso em produção, con
 - HTTPS
 - Rate limiting
 - Backup dos dados
+
+## 🔐 Sistema de Autenticação
+
+O sistema possui **autenticação para o painel administrativo** para garantir que apenas pessoas autorizadas tenham acesso às funcionalidades de gerenciamento.
+
+### Credenciais de Acesso
+- **Usuário:** `marcos`
+- **Senha:** `12345678`
+
+### Como Funciona
+1. **Usuários/Convidados:** Têm acesso livre à tela de convidado
+2. **Administradores:** Precisam fazer login para acessar o painel administrativo
+3. **Sessão:** A autenticação é mantida durante a sessão do navegador
+4. **Logout:** Administradores podem fazer logout a qualquer momento
+
+### Funcionalidades de Segurança
+- ✅ Login obrigatório para acessar o modo admin
+- ✅ Sessão mantida no sessionStorage
+- ✅ Logout automático ao fechar o navegador
+- ✅ Redirecionamento automático para tela de usuário se não autenticado
+- ✅ Botão de logout visível apenas no modo admin
 
 ## 📄 Licença
 

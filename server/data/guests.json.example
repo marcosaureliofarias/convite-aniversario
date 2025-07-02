@@ -2,7 +2,7 @@
   {
     "id": "example-guest-1",
     "name": "João Silva",
-    "phone": "(11) 99999-9999",
+    "phone": "(21) 98531-7129",
     "email": "joao@email.com",
     "confirmed": true,
     "confirmedAt": "2025-07-01T15:30:00.000Z",
