@@ -76,6 +76,16 @@ project/
 - **Solução**: Criado `public/favicon.svg` personalizado com iniciais "MF"
 - **Status**: ✅ Resolvido
 
+### ✅ **MIME Type Error (Tela Branca)**
+- **Problema**: "Expected JavaScript module but server responded with HTML"
+- **Causa**: Configuração incorreta de roteamento na Vercel
+- **Soluções Implementadas**:
+  - Configuração específica de rotas para assets JavaScript/CSS
+  - Headers corretos para tipos MIME
+  - Arquivo `_headers` para configurações adicionais
+  - Vite configurado com output específico para Vercel
+- **Status**: ✅ Resolvido
+
 ## 💾 **Soluções para Persistência**
 
 ### Opção 1: Supabase (Recomendado)
