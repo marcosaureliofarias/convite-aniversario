@@ -3,13 +3,7 @@ node_modules
 .env.local
 .env.*.local
 server
-src
 *.md
 !README.md
 .git
 .gitignore
-eslint.config.js
-postcss.config.js
-tailwind.config.js
-tsconfig*.json
-vite.config.ts

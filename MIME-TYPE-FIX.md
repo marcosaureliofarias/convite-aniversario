@@ -1,4 +1,14 @@
-# ✅ Correção do Erro MIME Type - Vercel
+# ✅ Corr## 🐛 **Problema Identificado**
+```
+Could not resolve "./src/main.tsx" from "index.html"
+```
+
+**E também:**
+```
+[vite]: Rollup failed to resolve import "/src/main.tsx" from "/vercel/path0/index.html"
+```
+
+**Causa Principal**: O arquivo `.vercelignore` estava ignorando a pasta `src/`, impedindo que os arquivos do código-fonte fossem enviados para a Vercel durante o build!IME Type - Vercel
 
 ## 🐛 *## 🚀 **Status do Deploy**
 - ✅ **Erro Build Rollup**: Resolvido
@@ -23,30 +33,29 @@ but the server responded with a MIME type of "text/html"
 
 ## 🔧 **Soluções Implementadas**
 
-### 1. **Correção do index.html**
-- ✅ Caminho `/src/main.tsx` alterado para `./src/main.tsx` (relativo)
-- ✅ Resolve o erro de build do Rollup/Vite
+### 1. **Correção Crítica do .vercelignore**
+- ✅ **PROBLEMA PRINCIPAL**: Removido `src` do `.vercelignore`
+- ✅ A pasta `src/` agora será incluída no deploy da Vercel
+- ✅ Arquivos TypeScript/React agora disponíveis para build
 
-### 2. **Vercel.json Simplificado**
-- ✅ Configuração simplificada e mais compatível
-- ✅ Uso de `rewrites` em vez de `routes` complexas
-- ✅ Remoção de configurações desnecessárias
+### 2. **Configuração Vite Otimizada**
+- ✅ Adicionado `root: '.'` e `publicDir: 'public'`
+- ✅ Caminho `/src/main.tsx` restaurado (absoluto)
+- ✅ Build configurado corretamente
 
-### 3. **Vite.config.ts Simplificado**
+### 3. **Vercel.json Simplificado**
 - ✅ Configuração básica e estável
-- ✅ Remoção de configurações avançadas que causavam problemas
-- ✅ Build otimizado para Vercel
+- ✅ Rewrites para API e fallback
 
-### 4. **Headers HTTP Configurados**
-- ✅ Arquivo `public/_headers` mantido
-- ✅ Content-Type correto para assets estáticos
+### 4. **Headers HTTP Mantidos**
+- ✅ Arquivo `public/_headers` para tipos MIME corretos
 
 ## 📁 **Arquivos Modificados/Criados**
-- `index.html` - Caminho do script corrigido (absoluto → relativo)
-- `vercel.json` - Configuração simplificada e estável
-- `vite.config.ts` - Build simplificado
+- `.vercelignore` - **CORREÇÃO CRÍTICA**: Removido `src` da lista de ignorados
+- `vite.config.ts` - Configuração otimizada com root e publicDir
+- `index.html` - Caminho do script restaurado para absoluto
+- `vercel.json` - Configuração simplificada
 - `public/_headers` - Headers HTTP específicos
-- `.vercelignore` - Arquivos a ignorar no deploy
 
 ## 🧪 **Testes Realizados**
 - ✅ Build local executado com sucesso
