@@ -241,21 +241,23 @@ export const UserView: React.FC = () => {
 
       {/* Guest Form Modal */}
       {showGuestForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-fade-in">
-            <div className="text-center mb-6">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full my-8 animate-fade-in max-h-[95vh] overflow-y-auto">
+            {/* Sticky Header */}
+            <div className="text-center p-6 border-b sticky top-0 bg-white rounded-t-2xl">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-4">
                 <User className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
                 Adicionar à Lista de Convidados
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm">
                 Preencha seus dados para garantir sua vaga
               </p>
             </div>
             
-            <form onSubmit={handleSubmitGuest} className="space-y-6">
+            {/* Scrollable Content */}
+            <form onSubmit={handleSubmitGuest} className="p-4 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Nome completo *
@@ -306,13 +308,13 @@ export const UserView: React.FC = () => {
                   onChange={(e) => setNewGuestData(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Ex: Vou com família, tenho restrições alimentares, etc."
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
-                  rows={4}
+                  rows={3}
                 />
               </div>
 
               {/* Confirmation Options */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">Como você quer confirmar sua presença?</h4>
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-200">
+                <h4 className="text-base font-semibold text-gray-800 mb-3">Como você quer confirmar sua presença?</h4>
                 
                 <div className="space-y-3">
                   <label className="flex items-start gap-3 cursor-pointer">
@@ -324,8 +326,8 @@ export const UserView: React.FC = () => {
                       className="w-5 h-5 text-purple-600 bg-gray-100 border-gray-300 focus:ring-purple-500 mt-1"
                     />
                     <div>
-                      <div className="font-medium text-gray-800">Apenas adicionar à lista</div>
-                      <div className="text-sm text-gray-600">Vou confirmar depois via WhatsApp</div>
+                      <div className="font-medium text-gray-800 text-sm">Apenas adicionar à lista</div>
+                      <div className="text-xs text-gray-600">Vou confirmar depois via WhatsApp</div>
                     </div>
                   </label>
                   
@@ -338,14 +340,15 @@ export const UserView: React.FC = () => {
                       className="w-5 h-5 text-purple-600 bg-gray-100 border-gray-300 focus:ring-purple-500 mt-1"
                     />
                     <div>
-                      <div className="font-medium text-gray-800">Confirmar presença agora</div>
-                      <div className="text-sm text-gray-600">Já confirmo minha presença na festa</div>
+                      <div className="font-medium text-gray-800 text-sm">Confirmar presença agora</div>
+                      <div className="text-xs text-gray-600">Já confirmo minha presença na festa</div>
                     </div>
                   </label>
                 </div>
               </div>
 
-              <div className="flex gap-4 pt-4">
+              {/* Sticky Footer */}
+              <div className="flex gap-3 pt-4 sticky bottom-0 bg-white pb-4 border-t">
                 <button
                   type="button"
                   onClick={handleCloseForm}

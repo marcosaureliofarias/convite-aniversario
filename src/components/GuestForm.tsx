@@ -72,9 +72,10 @@ export const GuestForm: React.FC<GuestFormProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl w-full max-w-md animate-slide-up">
-        <div className="flex items-center justify-between p-4 border-b">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-xl w-full max-w-md my-8 animate-slide-up max-h-[95vh] overflow-y-auto">
+        {/* Sticky Header */}
+        <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white rounded-t-xl z-10">
           <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
             {guest ? <Save className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
             {guest ? 'Editar Convidado' : 'Novo Convidado'}
@@ -87,6 +88,7 @@ export const GuestForm: React.FC<GuestFormProps> = ({
           </button>
         </div>
 
+        {/* Scrollable Form Content */}
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -138,7 +140,7 @@ export const GuestForm: React.FC<GuestFormProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
               placeholder="Observações sobre o convidado..."
-              rows={3}
+              rows={2}
             />
           </div>
 
@@ -155,7 +157,8 @@ export const GuestForm: React.FC<GuestFormProps> = ({
             </label>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          {/* Sticky Footer */}
+          <div className="flex gap-3 pt-4 sticky bottom-0 bg-white pb-4 border-t z-10">
             <button
               type="button"
               onClick={onCancel}
