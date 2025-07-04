@@ -1,4 +1,5 @@
 import { MongoClient, ObjectId } from 'mongodb';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 // Conexão com MongoDB
 async function getDatabase() {
@@ -12,7 +13,7 @@ async function getDatabase() {
   return client.db('birthday-guests');
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { id } = req.query;
     
