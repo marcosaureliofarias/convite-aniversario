@@ -1,5 +1,5 @@
 import { Guest } from '../types';
-import { persistentGuestAPI } from './persistentGuestAPI';
+import { mongoGuestAPI } from './mongoGuestAPI';
 
 // Simula delay de rede para manter a experiência de API
 const delay = (ms: number = 100) => new Promise(resolve => setTimeout(resolve, ms));
@@ -9,7 +9,7 @@ export const guestAPI = {
   async getAll(): Promise<Guest[]> {
     await delay();
     try {
-      return await persistentGuestAPI.getAll();
+      return await mongoGuestAPI.getAll();
     } catch (error) {
       console.error('Erro ao buscar convidados:', error);
       throw error;
@@ -20,8 +20,8 @@ export const guestAPI = {
   async create(guestData: Omit<Guest, 'id' | 'invitedAt'>): Promise<Guest> {
     await delay();
     try {
-      const newGuest = await persistentGuestAPI.create(guestData);
-      console.log('✅ Convidado adicionado e salvo:', newGuest.name);
+      const newGuest = await mongoGuestAPI.create(guestData);
+      console.log('✅ Convidado adicionado no MongoDB:', newGuest.name);
       return newGuest;
     } catch (error) {
       console.error('Erro ao criar convidado:', error);
@@ -33,8 +33,8 @@ export const guestAPI = {
   async update(id: string, updates: Partial<Guest>): Promise<Guest> {
     await delay();
     try {
-      const updatedGuest = await persistentGuestAPI.update(id, updates);
-      console.log('✅ Convidado atualizado e salvo:', updatedGuest.name);
+      const updatedGuest = await mongoGuestAPI.update(id, updates);
+      console.log('✅ Convidado atualizado no MongoDB:', updatedGuest.name);
       return updatedGuest;
     } catch (error) {
       console.error('Erro ao atualizar convidado:', error);
@@ -46,8 +46,8 @@ export const guestAPI = {
   async delete(id: string): Promise<void> {
     await delay();
     try {
-      await persistentGuestAPI.delete(id);
-      console.log('✅ Convidado removido e salvo');
+      await mongoGuestAPI.delete(id);
+      console.log('✅ Convidado removido do MongoDB');
     } catch (error) {
       console.error('Erro ao remover convidado:', error);
       throw error;
@@ -58,8 +58,8 @@ export const guestAPI = {
   async confirm(id: string): Promise<Guest> {
     await delay();
     try {
-      const confirmedGuest = await persistentGuestAPI.confirm(id);
-      console.log('✅ Presença confirmada e salva:', confirmedGuest.name);
+      const confirmedGuest = await mongoGuestAPI.confirm(id);
+      console.log('✅ Presença confirmada no MongoDB:', confirmedGuest.name);
       return confirmedGuest;
     } catch (error) {
       console.error('Erro ao confirmar convidado:', error);
@@ -71,8 +71,8 @@ export const guestAPI = {
   async clearAll(): Promise<void> {
     await delay();
     try {
-      await persistentGuestAPI.clearAll();
-      console.log('✅ Todos os dados foram limpos e salvos');
+      await mongoGuestAPI.clearAll();
+      console.log('✅ Todos os dados foram limpos do MongoDB');
     } catch (error) {
       console.error('Erro ao limpar dados:', error);
       throw error;
@@ -83,8 +83,8 @@ export const guestAPI = {
   async importData(data: Guest[]): Promise<number> {
     await delay();
     try {
-      const count = await persistentGuestAPI.importData(data);
-      console.log(`✅ ${count} convidados importados e salvos`);
+      const count = await mongoGuestAPI.importData(data);
+      console.log(`✅ ${count} convidados importados para o MongoDB`);
       return count;
     } catch (error) {
       console.error('Erro ao importar dados:', error);
@@ -95,8 +95,8 @@ export const guestAPI = {
   // Baixar backup
   async downloadBackup(): Promise<void> {
     try {
-      await persistentGuestAPI.downloadBackup();
-      console.log('✅ Backup baixado com sucesso');
+      await mongoGuestAPI.downloadBackup();
+      console.log('✅ Backup baixado com sucesso do MongoDB');
     } catch (error) {
       console.error('Erro ao baixar backup:', error);
       throw error;
@@ -106,8 +106,8 @@ export const guestAPI = {
   // Forçar recarregamento
   async forceReload(): Promise<Guest[]> {
     try {
-      const guests = await persistentGuestAPI.forceReload();
-      console.log('✅ Dados recarregados:', guests.length, 'convidados');
+      const guests = await mongoGuestAPI.forceReload();
+      console.log('✅ Dados recarregados do MongoDB:', guests.length, 'convidados');
       return guests;
     } catch (error) {
       console.error('Erro ao recarregar dados:', error);
