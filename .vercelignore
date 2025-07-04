@@ -7,3 +7,6 @@ server
 !README.md
 .git
 .gitignore
+# Evitar conflitos com arquivos JavaScript duplicados
+api/**/*.js
+!api/_shared/*.js
